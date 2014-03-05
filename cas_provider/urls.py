@@ -1,5 +1,8 @@
-from django.conf.urls.defaults import patterns, url
-
+try:
+    from django.conf.urls import patterns, url, include
+except ImportError:
+    # for Django version less then 1.4
+    from django.conf.urls.defaults import patterns, url, include
 
 urlpatterns = patterns('cas_provider.views',
     url(r'^login/?$', 'login', name='cas_login'),
