@@ -214,7 +214,7 @@ def generate_proxy_granting_ticket(pgt_url, ticket):
 
 
 def _cas2_proxy_success(pt):
-    return HttpResponse(proxy_success(pt))
+    return HttpResponse(proxy_success(pt), mimetype='text/xml')
 
 
 def _cas2_sucess_response(user, pgt=None, proxies=None):
