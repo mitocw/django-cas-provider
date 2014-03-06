@@ -68,6 +68,9 @@ CAS_AUTO_REDIRECT_AFTER_LOGOUT - If False (default behavior, specified in CAS pr
 after successful logout notification page will be shown. If it's True, after successful logout will
 be auto redirect back to service without any notification.
 
+CAS_USERNAME_FIELD - Specify the user model field to send back as the username. e.g. email instead
+of username. Default is username
+
 
 PROTOCOL DOCUMENTATION
 =====================
