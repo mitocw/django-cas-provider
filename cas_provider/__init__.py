@@ -7,6 +7,7 @@ _DEFAULTS = {
     'CAS_CUSTOM_ATTRIBUTES_CALLBACK': None,
     'CAS_CUSTOM_ATTRIBUTES_FORMATER': 'cas_provider.attribute_formatters.jasig',
     'CAS_AUTO_REDIRECT_AFTER_LOGOUT': False,
+    'CAS_USERNAME_FIELD': 'username'
 }
 
 for key, value in _DEFAULTS.iteritems():

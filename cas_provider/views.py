@@ -244,7 +244,7 @@ def auth_success_response(user, pgt, proxies):
     response = etree.Element(CAS + 'serviceResponse', nsmap=NSMAP)
     auth_success = etree.SubElement(response, CAS + 'authenticationSuccess')
     username = etree.SubElement(auth_success, CAS + 'user')
-    username.text = user.username
+    username.text = getattr(user, settings.CAS_USERNAME_FIELD)
 
     if settings.CAS_CUSTOM_ATTRIBUTES_CALLBACK:
         callback = get_callable(settings.CAS_CUSTOM_ATTRIBUTES_CALLBACK)
