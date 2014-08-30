@@ -1,10 +1,12 @@
-from django.conf import settings
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from random import Random
 import string
 import urllib
 import urlparse
+
+from django.conf import settings
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
 
 if hasattr(urlparse, 'parse_qs'):
     parse_qs = urlparse.parse_qs
@@ -47,8 +49,11 @@ class ServiceTicket(BaseTicket):
     def get_redirect_url(self):
         parsed = urlparse.urlparse(self.service)
         query = parse_qs(parsed.query)
-        query['ticket'] = [self.ticket]
-        query = [((k, v) if len(v) > 1 else (k, v[0])) for k, v in query.iteritems()]
+        query = [
+            ((k, v) if len(v) > 1 else (k, v[0]))
+            for k, v in query.iteritems()
+        ]
+        query.append(('ticket', self.ticket))
         parsed = urlparse.ParseResult(parsed.scheme, parsed.netloc,
                                       parsed.path, parsed.params,
                                       urllib.urlencode(query), parsed.fragment)
