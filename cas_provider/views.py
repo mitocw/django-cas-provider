@@ -246,6 +246,15 @@ def auth_success_response(user, pgt, proxies):
     username = etree.SubElement(auth_success, CAS + 'user')
     username.text = getattr(user, settings.CAS_USERNAME_FIELD)
 
+    # django doesn't allow usernames to be longer than 30 characters
+    if len(username.text)>30:
+        if username.text.endswith('@touchstonenetwork.net'):
+            username.text = username.text.rsplit('@touchstonenetwork.net')[0] + '@tn'
+
+    # still too long - replace with hash
+    if len(username.text)>30:
+        username.text = 'tn_%s_%s' % (username.text[:10], hashlib.md5(username.text).hexdigest()[:22])
+
     if settings.CAS_CUSTOM_ATTRIBUTES_CALLBACK:
         callback = get_callable(settings.CAS_CUSTOM_ATTRIBUTES_CALLBACK)
         attrs = callback(user)
