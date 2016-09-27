@@ -246,6 +246,15 @@ def auth_success_response(user, pgt, proxies):
     username = etree.SubElement(auth_success, CAS + 'user')
     username.text = getattr(user, settings.CAS_USERNAME_FIELD)
 
+    if len(username.text) > 30:
+        if '@' in username.text[:30]:
+            username.text = username.text[:30]
+        elif username.text.endswith('@touchstonenetwork.net'):
+            username.text = username.text.rsplit(
+                '@touchstonenetwork.net')[0][:27] + '@tn'
+        else:
+            username.text = username.text[:29] + '@'
+
     if settings.CAS_CUSTOM_ATTRIBUTES_CALLBACK:
         callback = get_callable(settings.CAS_CUSTOM_ATTRIBUTES_CALLBACK)
         attrs = callback(user)
