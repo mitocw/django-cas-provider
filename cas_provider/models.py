@@ -49,8 +49,10 @@ class ServiceTicket(BaseTicket):
     def get_redirect_url(self):
         parsed = urlparse.urlparse(self.service)
         query = parse_qs(parsed.query)
+        # parse_qs converts plus(+) to space, to fix this issue using quote_plus
         query = [
-            ((k, v) if len(v) > 1 else (k, v[0]))
+            ((k, [urllib.quote_plus(data, safe='/:') for data in v])
+            if len(v) > 1 else (k, urllib.quote_plus(v[0], safe='/:')))
             for k, v in query.iteritems()
         ]
         query.append(('ticket', self.ticket))
