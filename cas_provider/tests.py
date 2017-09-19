@@ -341,6 +341,15 @@ class ModelsTestCase(TestCase):
         ticket = ServiceTicket.objects.create(service='http://example.com', user=self.user)
         self.assertEqual(ticket.get_redirect_url(), '%(service)s?ticket=%(ticket)s' % ticket.__dict__)
 
+    def test_plus_encoding(self):
+        ticket = ServiceTicket.objects.create(
+            service='http://example.com/?next=/courses/course-v1:MITx+6.042r_4+2017_Fall/',
+            user=self.user
+        )
+        assert (
+            "next=%2Fcourses%2Fcourse-v1%3AMITx%2B6.042r_4%2B2017_Fall%2F" in ticket.get_redirect_url()
+        )
+
 
 def cas_mapping(user):
     return {
