@@ -1,10 +1,7 @@
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import url, include
+from django.views.generic import TemplateView
 
-import cas_provider
-from django.views.generic.simple import redirect_to, direct_to_template
-
-urlpatterns = patterns('',
-                       url(r'^', include('cas_provider.urls')),
-                       url(r'^accounts/profile', direct_to_template, {'template': 'login-success-redirect-target.html'}),
-
-                       )
+urlpatterns = [
+    url(r'^', include('cas_provider.urls')),
+    url(r'^accounts/profile', TemplateView.as_view(template_name='login-success-redirect-target.html')),
+]

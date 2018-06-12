@@ -7,8 +7,7 @@ from django.conf import settings
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.core.urlresolvers import get_callable
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from cas_provider.attribute_formatters import NSMAP, CAS
 from cas_provider.models import ProxyGrantingTicket, ProxyTicket
 from forms import LoginForm
@@ -40,10 +39,10 @@ def login(request, template_name='cas/login.html',\
     if request.user.is_authenticated():
         if service is not None:
             if request.GET.get('warn', False):
-                return render_to_response(warn_template_name, {
+                return render(request, warn_template_name, {
                     'service': service,
                     'warn': False
-                }, context_instance=RequestContext(request))
+                })
             ticket = ServiceTicket.objects.create(service=service, user=request.user)
             return HttpResponseRedirect(ticket.get_redirect_url())
         else:
@@ -65,10 +64,10 @@ def login(request, template_name='cas/login.html',\
         })
     if hasattr(request, 'session') and hasattr(request.session, 'set_test_cookie'):
         request.session.set_test_cookie()
-    return render_to_response(template_name, {
+    return render(request, template_name, {
         'form': form,
         'errors': form.get_errors() if hasattr(form, 'get_errors') else None,
-        }, context_instance=RequestContext(request))
+    })
 
 
 def validate(request):
@@ -98,8 +97,11 @@ def logout(request, template_name='cas/logout.html',
         auth_logout(request)
         if url and auto_redirect:
             return HttpResponseRedirect(url)
-    return render_to_response(template_name, {'url': url},
-        context_instance=RequestContext(request))
+    return render(
+        request,
+        template_name,
+        {'url': url},
+    )
 
 
 def proxy(request):
@@ -214,11 +216,11 @@ def generate_proxy_granting_ticket(pgt_url, ticket):
 
 
 def _cas2_proxy_success(pt):
-    return HttpResponse(proxy_success(pt), mimetype='text/xml')
+    return HttpResponse(proxy_success(pt), content_type='text/xml')
 
 
 def _cas2_sucess_response(user, pgt=None, proxies=None):
-    return HttpResponse(auth_success_response(user, pgt, proxies), mimetype='text/xml')
+    return HttpResponse(auth_success_response(user, pgt, proxies), content_type='text/xml')
 
 
 def _cas2_error_response(code, message=None):
@@ -229,7 +231,7 @@ def _cas2_error_response(code, message=None):
         </cas:serviceResponse>''' % {
         'code': code,
         'message': message if message else dict(ERROR_MESSAGES).get(code)
-    }, mimetype='text/xml')
+    }, content_type='text/xml')
 
 
 def proxy_success(pt):

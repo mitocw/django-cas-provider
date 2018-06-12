@@ -77,7 +77,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -87,7 +86,6 @@ SECRET_KEY = 'kv*6pmkq47crqskw%wkst!h7xnisy78zzli@rtklgm#y6o=of!'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -102,10 +100,8 @@ ROOT_URLCONF = 'simple.urls'
 
 import os
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
+TEMPLATE_DIRS = (os.path.join(PROJECT_PATH, 'templates'),)
 
-TEMPLATE_DIRS = (
-     os.path.join(PROJECT_PATH, 'templates')
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -115,7 +111,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cas_provider',
-    'south',
 )
 
 # A sample logging configuration. The only tangible logging

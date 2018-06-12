@@ -16,8 +16,7 @@ setup(
     license='MIT',
     long_description=read('README.rst'),
     zip_safe=False,
-    install_requires=['setuptools',
-                      'south>=0.7.2',],
+    install_requires=['setuptools'],
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Framework :: Django",
