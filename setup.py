@@ -6,11 +6,11 @@ def read(fname):
 
 setup(
     name='django-cas-provider',
-    version='0.3.2',
+    version='0.3.3',
     description='A "provider" for the Central Authentication Service (http://jasig.org/cas)',
-    author='(Chris Williams), Sebastian Annies',
-    author_email='(chris@nitron.org), sebastian.annies@googlemail.com',
-    url='https://github.com/castlabs/django-cas-provider',
+    author='MIT Open Learning',
+    author_email='mitx-devops@mit.edu',
+    url='https://github.com/mitocw/django-cas-provider',
     packages=find_packages(),
     include_package_data=True,
     license='MIT',
@@ -19,7 +19,9 @@ setup(
     install_requires=['setuptools'],
     classifiers = [
         "Development Status :: 3 - Alpha",
-        "Framework :: Django",
+        "Framework :: Django :: 2.2",
+        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
-    ]
+    ],
+    python_requires='>=3.8'
 )

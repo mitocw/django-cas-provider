@@ -1,7 +1,7 @@
 from random import Random
 import string
 import urllib
-import urlparse
+import urllib.parse as urlparse
 
 from django.conf import settings
 from django.db import models
@@ -37,7 +37,9 @@ class BaseTicket(models.Model):
 
 
 class ServiceTicket(BaseTicket):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             verbose_name=_('user'),
+                             on_delete=models.CASCADE)
     service = models.URLField(_('service'), max_length=500)
 
     prefix = 'ST'
@@ -71,7 +73,9 @@ class LoginTicket(BaseTicket):
 
 
 class ProxyGrantingTicket(BaseTicket):
-    serviceTicket = models.ForeignKey(ServiceTicket, null=True)
+    serviceTicket = models.ForeignKey(ServiceTicket,
+                                      null=True,
+                                      on_delete=models.CASCADE)
     pgtiou = models.CharField(max_length=256, verbose_name=_('PGTiou'))
     prefix = 'PGT'
 
@@ -86,7 +90,11 @@ class ProxyGrantingTicket(BaseTicket):
 
 
 class ProxyTicket(ServiceTicket):
-    proxyGrantingTicket = models.ForeignKey(ProxyGrantingTicket, verbose_name=_('Proxy Granting Ticket'))
+    proxyGrantingTicket = models.ForeignKey(
+        ProxyGrantingTicket,
+        verbose_name=_('Proxy Granting Ticket'),
+        on_delete=models.CASCADE
+    )
 
     prefix = 'PT'
 
@@ -96,7 +104,11 @@ class ProxyTicket(ServiceTicket):
 
 
 class ProxyGrantingTicketIOU(BaseTicket):
-    proxyGrantingTicket = models.ForeignKey(ProxyGrantingTicket, verbose_name=_('Proxy Granting Ticket'))
+    proxyGrantingTicket = models.ForeignKey(
+        ProxyGrantingTicket,
+        verbose_name=_('Proxy Granting Ticket'),
+        on_delete=models.CASCADE
+    )
 
     prefix = 'PGTIOU'
 

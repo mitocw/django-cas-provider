@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from models import LoginTicket
+from .models import LoginTicket
 import datetime
 
 

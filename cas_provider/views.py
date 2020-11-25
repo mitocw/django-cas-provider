@@ -1,17 +1,17 @@
 import logging
 from lxml import etree
-from urllib import urlencode
-import urllib2
-import urlparse
+from urllib.parse import urlencode
+import urllib.request
+import urllib.parse
 from django.conf import settings
 from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.core.urlresolvers import get_callable
+from django.urls import get_callable
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from cas_provider.attribute_formatters import NSMAP, CAS
 from cas_provider.models import ProxyGrantingTicket, ProxyTicket
-from forms import LoginForm
-from models import ServiceTicket, LoginTicket
+from .forms import LoginForm
+from .models import ServiceTicket, LoginTicket
 
 
 __all__ = ['login', 'validate', 'logout', 'service_validate']
@@ -135,8 +135,8 @@ def ticket_validate(service, ticket_string, pgtUrl):
     except ServiceTicket.DoesNotExist:
         return _cas2_error_response(INVALID_TICKET)
 
-    ticketUrl =  urlparse.urlparse(ticket.service)
-    serviceUrl =  urlparse.urlparse(service)
+    ticketUrl =  urllib.parse.urlparse(ticket.service)
+    serviceUrl =  urllib.parse.urlparse(service)
 
     if not(ticketUrl.hostname == serviceUrl.hostname and ticketUrl.path == serviceUrl.path and ticketUrl.port == serviceUrl.port):
         return _cas2_error_response(INVALID_SERVICE)
@@ -184,7 +184,7 @@ def proxy_validate(request):
 
 def generate_proxy_granting_ticket(pgt_url, ticket):
     proxy_callback_good_status = (200, 202, 301, 302, 304)
-    uri = list(urlparse.urlsplit(pgt_url))
+    uri = list(urllib.parse.urlsplit(pgt_url))
 
     pgt = ProxyGrantingTicket()
     pgt.serviceTicket = ticket
@@ -196,18 +196,18 @@ def generate_proxy_granting_ticket(pgt_url, ticket):
 
     params = {'pgtId': pgt.ticket, 'pgtIou': pgt.pgtiou}
 
-    query = dict(urlparse.parse_qsl(uri[4]))
+    query = dict(urllib.parse.parse_qsl(uri[4]))
     query.update(params)
 
     uri[3] = urlencode(query)
 
     try:
-        response = urllib2.urlopen(urlparse.urlunsplit(uri))
-    except urllib2.HTTPError, e:
+        response = urllib.request.urlopen(urllib.parse.urlunsplit(uri))
+    except urllib.request.HTTPError as e:
         if not e.code in proxy_callback_good_status:
             logger.debug('Checking Proxy Callback URL {} returned {}. Not issuing PGT.'.format(uri, e.code))
             return
-    except urllib2.URLError, e:
+    except urllib.request.URLError as e:
         logger.debug('Checking Proxy Callback URL {} raised URLError. Not issuing PGT.'.format(uri))
         return
 

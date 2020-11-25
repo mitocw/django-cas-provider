@@ -10,7 +10,7 @@ _DEFAULTS = {
     'CAS_USERNAME_FIELD': 'username'
 }
 
-for key, value in _DEFAULTS.iteritems():
+for key, value in _DEFAULTS.items():
     try:
         getattr(settings, key)
     except AttributeError:

@@ -1,5 +1,5 @@
-import StringIO
-import urllib2
+import io
+import urllib.request
 from xml import etree
 from xml.etree import ElementTree
 import cas_provider
@@ -9,7 +9,7 @@ from cas_provider.views import _cas2_sucess_response, INVALID_TICKET, _cas2_erro
 from django.contrib.auth.models import User, UserManager
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from urlparse import urlparse, parse_qsl, parse_qs
+from urllib.parse import urlparse, parse_qsl, parse_qs
 from django.conf import settings
 
 
@@ -33,7 +33,7 @@ class ViewsTest(TestCase):
 
 
     def test_successful_login_with_proxy(self):
-        urllib2.urlopen = dummy_urlopen # monkey patching urllib2.urlopen so that the testcase doesnt really opens a url
+        urllib.request.urlopen = dummy_urlopen # monkey patching urlopen so that the testcase doesnt really open a url
         proxyTarget = "http://my.sweet.service"
 
         response = self._login_user('root', '123')
@@ -41,7 +41,7 @@ class ViewsTest(TestCase):
 
         # Test: I'm acting as the service that will call another service
         # Step 1: Get the proxy granting ticket
-        responseXml = ElementTree.parse(StringIO.StringIO(response.content))
+        responseXml = ElementTree.parse(io.StringIO(response.content))
         auth_success = responseXml.find(CAS + 'authenticationSuccess', namespaces=NSMAP)
         pgt = auth_success.find(CAS + "proxyGrantingTicket", namespaces=NSMAP)
         user = auth_success.find(CAS + "user", namespaces=NSMAP)
@@ -53,14 +53,14 @@ class ViewsTest(TestCase):
 
         #Step 2: Get the actual proxy ticket
         proxyTicketResponse = self.client.get(reverse('proxy'), {'targetService': proxyTarget, 'pgt': pgtId}, follow=False)
-        proxyTicketResponseXml = ElementTree.parse(StringIO.StringIO(proxyTicketResponse.content))
+        proxyTicketResponseXml = ElementTree.parse(io.StringIO(proxyTicketResponse.content))
         self.assertIsNotNone(proxyTicketResponseXml.find(CAS + "proxySuccess", namespaces=NSMAP))
         self.assertIsNotNone(proxyTicketResponseXml.find(CAS + "proxySuccess/cas:proxyTicket", namespaces=NSMAP))
         proxyTicket = proxyTicketResponseXml.find(CAS + "proxySuccess/cas:proxyTicket", namespaces=NSMAP);
 
         #Step 3: I have the proxy ticket I can talk to some other backend service as the currently logged in user!
         proxyValidateResponse = self.client.get(reverse('cas_proxy_validate'), {'ticket': proxyTicket.text, 'service': proxyTarget})
-        proxyValidateResponseXml = ElementTree.parse(StringIO.StringIO(proxyValidateResponse.content))
+        proxyValidateResponseXml = ElementTree.parse(io.StringIO(proxyValidateResponse.content))
 
         auth_success_2 = proxyValidateResponseXml.find(CAS + 'authenticationSuccess', namespaces=NSMAP)
         user_2 = auth_success.find(CAS + "user", namespaces=NSMAP)
@@ -71,7 +71,7 @@ class ViewsTest(TestCase):
 
 
     def test_successful_proxy_chaining(self):
-        urllib2.urlopen = dummy_urlopen # monkey patching urllib2.urlopen so that the testcase doesnt really opens a url
+        urllib.request.urlopen = dummy_urlopen # monkey patching urlopen so that the testcase doesnt really open a url
         proxyTarget_1 = "http://my.sweet.service_1"
         proxyTarget_2 = "http://my.sweet.service_2"
 
@@ -80,7 +80,7 @@ class ViewsTest(TestCase):
 
         # Test: I'm acting as the service that will call another service
         # Step 1: Get the proxy granting ticket
-        responseXml = ElementTree.parse(StringIO.StringIO(response.content))
+        responseXml = ElementTree.parse(io.StringIO(response.content))
         auth_success_1 = responseXml.find(CAS + 'authenticationSuccess', namespaces=NSMAP)
         pgt_1 = auth_success_1.find(CAS + "proxyGrantingTicket", namespaces=NSMAP)
         user_1 = auth_success_1.find(CAS + "user", namespaces=NSMAP)
@@ -92,7 +92,7 @@ class ViewsTest(TestCase):
 
         #Step 2: Get the actual proxy ticket
         proxyTicketResponse_1 = self.client.get(reverse('proxy'), {'targetService': proxyTarget_1, 'pgt': pgtId_1}, follow=False)
-        proxyTicketResponseXml_1 = ElementTree.parse(StringIO.StringIO(proxyTicketResponse_1.content))
+        proxyTicketResponseXml_1 = ElementTree.parse(io.StringIO(proxyTicketResponse_1.content))
         self.assertIsNotNone(proxyTicketResponseXml_1.find(CAS + "proxySuccess", namespaces=NSMAP))
         self.assertIsNotNone(proxyTicketResponseXml_1.find(CAS + "proxySuccess/cas:proxyTicket", namespaces=NSMAP))
         proxyTicket_1 = proxyTicketResponseXml_1.find(CAS + "proxySuccess/cas:proxyTicket", namespaces=NSMAP);
@@ -100,7 +100,7 @@ class ViewsTest(TestCase):
         #Step 3: I'm backend service 1 - I have the proxy ticket - I want to talk to back service 2
         #
         proxyValidateResponse_1 = self.client.get(reverse('cas_proxy_validate'), {'ticket': proxyTicket_1.text, 'service': proxyTarget_1, 'pgtUrl': proxyTarget_2})
-        proxyValidateResponseXml_1 = ElementTree.parse(StringIO.StringIO(proxyValidateResponse_1.content))
+        proxyValidateResponseXml_1 = ElementTree.parse(io.StringIO(proxyValidateResponse_1.content))
 
         auth_success_2 = proxyValidateResponseXml_1.find(CAS + 'authenticationSuccess', namespaces=NSMAP)
         user_2 = auth_success_2.find(CAS + "user", namespaces=NSMAP)
@@ -120,13 +120,13 @@ class ViewsTest(TestCase):
 
         #Step 4: Get the second proxy ticket
         proxyTicketResponse_2 = self.client.get(reverse('proxy'), {'targetService': proxyTarget_2, 'pgt': pgtId_2})
-        proxyTicketResponseXml_2 = ElementTree.parse(StringIO.StringIO(proxyTicketResponse_2.content))
+        proxyTicketResponseXml_2 = ElementTree.parse(io.StringIO(proxyTicketResponse_2.content))
         self.assertIsNotNone(proxyTicketResponseXml_2.find(CAS + "proxySuccess", namespaces=NSMAP))
         self.assertIsNotNone(proxyTicketResponseXml_2.find(CAS + "proxySuccess/cas:proxyTicket", namespaces=NSMAP))
         proxyTicket_2 = proxyTicketResponseXml_2.find(CAS + "proxySuccess/cas:proxyTicket", namespaces=NSMAP)
 
         proxyValidateResponse_3 = self.client.get(reverse('cas_proxy_validate'), {'ticket': proxyTicket_2.text, 'service': proxyTarget_2, 'pgtUrl': None})
-        proxyValidateResponseXml_3 = ElementTree.parse(StringIO.StringIO(proxyValidateResponse_3.content))
+        proxyValidateResponseXml_3 = ElementTree.parse(io.StringIO(proxyValidateResponse_3.content))
 
         auth_success_3 = proxyValidateResponseXml_3.find(CAS + 'authenticationSuccess', namespaces=NSMAP)
         user_3 = auth_success_3.find(CAS + "user", namespaces=NSMAP)
@@ -249,7 +249,7 @@ class ViewsTest(TestCase):
 
 
     def test_generate_proxy_granting_ticket(self):
-        urllib2.urlopen = dummy_urlopen # monkey patching urllib2.urlopen so that the testcase doesnt really opens a url
+        urllib.request.urlopen = dummy_urlopen # monkey patching urllib2.urlopen so that the testcase doesnt really opens a url
         url = 'http://my.call.back/callhere'
 
         user = User.objects.get(username = 'root')
